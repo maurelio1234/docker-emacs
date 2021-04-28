@@ -1,6 +1,10 @@
 FROM ubuntu:18.04
 
 RUN apt-get update && \
+    apt-get install -y software-properties-common
+RUN add-apt-repository ppa:ubuntu-toolchain-r/test
+
+RUN apt-get update && \
     apt-get install -y \
             autoconf \
             automake \
@@ -39,7 +43,8 @@ RUN apt-get update && \
             texinfo \
             wget \
             xaw3dg-dev \
-            zlib1g-dev \
+    zlib1g-dev \
+    gcc-10 g++-10 libgccjit0 libgccjit-10-dev libjansson4 libjansson-dev \
     && rm -rf /var/lib/apt/lists/*
 
 ADD https://git.sv.gnu.org/git/emacs.git/refs/heads/master /tmp/cache
@@ -47,7 +52,7 @@ ADD https://git.sv.gnu.org/git/emacs.git/refs/heads/master /tmp/cache
 RUN git clone --depth 1 --branch master git://git.sv.gnu.org/emacs.git /opt/emacs && \
     cd /opt/emacs && \
     ./autogen.sh && \
-    ./configure --build="$(dpkg-architecture --query DEB_BUILD_GNU_TYPE)" --with-modules && \
+    CC=/usr/bin/gcc-10 CXX=/usr/bin/gcc-10 ./configure --build="$(dpkg-architecture --query DEB_BUILD_GNU_TYPE)" --with-modules --with-native-compilation && \
     make && \
     make install
 
